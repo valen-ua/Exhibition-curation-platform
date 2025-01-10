@@ -6,8 +6,7 @@ const wellcomeCollectionApi = axios.create({
 })
 
 export const fetchArtworks = () => {
-    return wellcomeCollectionApi.get("/works").then(({data}) => {
-        console.log(data.results)
+    return wellcomeCollectionApi.get("/images").then(({data}) => {
         return data.results
 
     })
