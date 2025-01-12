@@ -7,7 +7,6 @@ const chicagoArtInstituteApi = axios.create({
 
 export const fetchArtworksFromChicago = () => {
     return chicagoArtInstituteApi.get("/artworks").then(({data}) => {
-        console.log(data.data)
         return data.data
 
     })
