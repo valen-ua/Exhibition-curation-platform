@@ -5,8 +5,8 @@ const chicagoArtInstituteApi = axios.create({
     baseURL
 })
 
-export const fetchArtworksFromChicago = () => {
-    return chicagoArtInstituteApi.get("/artworks").then(({data}) => {
+export const fetchArtworksFromChicago = (page: number, limit: number) => {
+    return chicagoArtInstituteApi.get(`/artworks?page=${page}&limit=${limit}`).then(({data}) => {
         return data.data
 
     })

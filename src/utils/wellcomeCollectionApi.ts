@@ -5,8 +5,8 @@ const wellcomeCollectionApi = axios.create({
     baseURL
 })
 
-export const fetchArtworks = () => {
-    return wellcomeCollectionApi.get("/images").then(({data}) => {
+export const fetchArtworks = (page: number, limit: 10) => {
+    return wellcomeCollectionApi.get(`/images?limit=${limit}&page=${page}`).then(({data}) => {
         return data.results
 
     })
