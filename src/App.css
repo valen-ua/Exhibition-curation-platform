@@ -39,10 +39,10 @@
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
 
     justify-content: center;
-    display: flex; /* Use flexbox for alignment */
-  flex-direction: column; /* Ensure text is stacked below the image */
-  align-items: center; /* Horizontally center content */
-  justify-content: center; /* Vertically center content */
-  text-align: center; /* Center-align text content if any */
-  padding: 10px; /* Optional: Add some padding around each item */
+    display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  text-align: center; 
+  padding: 10px; 
 }
