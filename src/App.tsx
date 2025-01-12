@@ -1,13 +1,15 @@
 
 import './App.css'
-import AllWellcomeArtworks from './components/ArtworkList'
+import MultiApiFetch from './components/ArtworkList'
+import { Header } from './components/Header'
 
 function App() {
   
   return (
     <>
-      <div>
-    <AllWellcomeArtworks />
+      <div className='body'>
+      <Header />
+    <MultiApiFetch />
       </div>
      
      
