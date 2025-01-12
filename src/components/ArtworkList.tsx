@@ -18,53 +18,57 @@ interface ChicagoArtwork {
   title: string;
   artist: string;
 }
+
 export const MultiApiFetch = () => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [allWellcomeArtworks, setAllWellcomeArtworks] = useState<
     WellcomeArtwork[]
   >([]);
   const [allChicagoArtworks, setAllChicagoArtworks] = useState<
     ChicagoArtwork[]
   >([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    Promise.all([
-      fetchArtworks()
-        .then((allWellcomeArtworks) => {
-          setAllWellcomeArtworks(
-            allWellcomeArtworks.map((artwork: WellcomeArtwork) => ({
-              id: artwork.id,
-              thumbnail: artwork.thumbnail,
-              source: artwork.source,
-            }))
-          );
-        })
-        .catch((error) =>
-          console.error("Error fetching Wellcome Collection artworks:", error)
-        ),
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-      fetchArtworksFromChicago()
-        .then((allChicagoArtworks) =>
-          setAllChicagoArtworks(
-            allChicagoArtworks.map((artwork: any) => ({
-              image_id: artwork.image_id,
-              title: artwork.title || "Unknown Title",
-              artist: artwork.artist_title || "Unknown Artist",
-            }))
-          )
-        )
-        .catch((error) =>
-          console.error("Error fetching Chicago Art Institute artworks:", error)
-        ),
-    ]);
-    setIsLoading(false);
+  useEffect(() => {
+    loadMoreArtworks();
   }, []);
+  const loadMoreArtworks = () => {
+    if (isLoadingMore) return;
+
+    setIsLoadingMore(true);
+
+    const nextPage = currentPage + 1;
+
+    Promise.all([
+      fetchArtworks(nextPage, 10).then((wellcomeResults) =>
+        
+        wellcomeResults.map((artwork: WellcomeArtwork) => ({
+            
+          id: artwork.id,
+          thumbnail: artwork.thumbnail,
+          source: artwork.source,
+        }))
+      ),
+      fetchArtworksFromChicago(nextPage, 10).then((chicagoResults) =>
+        chicagoResults.map((artwork: any) => ({
+          image_id: artwork.image_id,
+          title: artwork.title || "Unknown Title",
+          artist: artwork.artist_title || "Unknown Artist",
+        }))
+      ),
+    ])
+      .then(([wellcomeResults, chicagoResults]) => {
+        setAllWellcomeArtworks((prev) => [...prev, ...wellcomeResults]);
+        setAllChicagoArtworks((prev) => [...prev, ...chicagoResults]);
+        setCurrentPage(nextPage);
+      })
+      .catch((error) => console.error("Error fetching artworks:", error))
+      .finally(() => setIsLoadingMore(false));
+  };
   const constructImageUrl = (infoUrl: string, size = "300, 300") => {
     return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
   };
 
-  if (isLoading) {
-    return <h3>Loading...</h3>;
-  }
   return (
     <div>
       <div className="container">
@@ -82,7 +86,7 @@ export const MultiApiFetch = () => {
                       margin: "10px",
                     }}
                   />
-                  <h4>{artwork.source.title}</h4>
+                  <h5>{artwork.source.title}</h5>
                   <p>Credit: {artwork.thumbnail.credit}</p>
                 </div>
               ))}
@@ -104,12 +108,24 @@ export const MultiApiFetch = () => {
                   ) : (
                     <p>No image available</p>
                   )}
-                  <h4>{artwork.title}</h4>
+                  <h5>{artwork.title}</h5>
                   <p>Artist: {artwork.artist}</p>
                 </div>
               ))}
             </div>
           </div>
+          <button
+            onClick={loadMoreArtworks}
+            disabled={isLoadingMore}
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              fontSize: "16px",
+              cursor: isLoadingMore ? "not-allowed" : "pointer",
+            }}
+          >
+            {isLoadingMore ? "Loading..." : "Load More"}
+          </button>
         </div>
       </div>
     </div>
