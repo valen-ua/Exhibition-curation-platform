@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .artworks-wrapper {
+    width: 50%;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .artwork-item img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
