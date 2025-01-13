@@ -46,3 +46,26 @@
   text-align: center; 
   padding: 10px; 
 }
+
+.load-more-button {
+    display: block; 
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #fed6e9;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .load-more-button:hover {
+    background-color: #f99dac; 
+    border-color: #f99dac;
+  }
+  
+  .load-more-button:active {
+    transform: scale(0.95);
+  }

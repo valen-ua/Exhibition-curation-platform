@@ -41,9 +41,7 @@ export const MultiApiFetch = () => {
 
     Promise.all([
       fetchArtworks(nextPage, 10).then((wellcomeResults) =>
-        
         wellcomeResults.map((artwork: WellcomeArtwork) => ({
-            
           id: artwork.id,
           thumbnail: artwork.thumbnail,
           source: artwork.source,
@@ -115,14 +113,9 @@ export const MultiApiFetch = () => {
             </div>
           </div>
           <button
+            className="load-more-button"
             onClick={loadMoreArtworks}
             disabled={isLoadingMore}
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              fontSize: "16px",
-              cursor: isLoadingMore ? "not-allowed" : "pointer",
-            }}
           >
             {isLoadingMore ? "Loading..." : "Load More"}
           </button>
