@@ -14,7 +14,7 @@
   
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
   }
   
@@ -37,14 +37,13 @@
 
   .artwork-item {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
-
     justify-content: center;
     display: flex; 
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-  text-align: center; 
-  padding: 10px; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    padding: 10px; 
 }
 
 .load-more-button {
