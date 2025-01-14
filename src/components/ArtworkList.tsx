@@ -21,22 +21,25 @@ interface ChicagoArtwork {
 
 export const MultiApiFetch = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [allWellcomeArtworks, setAllWellcomeArtworks] = useState<
-    WellcomeArtwork[]
-  >([]);
-  const [allChicagoArtworks, setAllChicagoArtworks] = useState<
-    ChicagoArtwork[]
-  >([]);
+  const [allArtworks, setAllArtworks] = useState<(WellcomeArtwork | ChicagoArtwork)[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     loadMoreArtworks();
   }, []);
+
+  const shuffleArray = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
   const loadMoreArtworks = () => {
     if (isLoadingMore) return;
 
     setIsLoadingMore(true);
-
     const nextPage = currentPage + 1;
 
     Promise.all([
@@ -55,9 +58,9 @@ export const MultiApiFetch = () => {
         }))
       ),
     ])
-      .then(([wellcomeResults, chicagoResults]) => {
-        setAllWellcomeArtworks((prev) => [...prev, ...wellcomeResults]);
-        setAllChicagoArtworks((prev) => [...prev, ...chicagoResults]);
+    .then(([wellcomeResults, chicagoResults]) => {
+        const combined = shuffleArray([...allArtworks, ...wellcomeResults, ...chicagoResults]);
+        setAllArtworks(combined);
         setCurrentPage(nextPage);
       })
       .catch((error) => console.error("Error fetching artworks:", error))
@@ -72,45 +75,35 @@ export const MultiApiFetch = () => {
       <div className="container">
         <div className="artworks-wrapper">
           <div className="grid">
-            <div className="wellcome-artworks">
-              {allWellcomeArtworks.map((artwork) => (
-                <div key={artwork.id} className="artwork-item">
+            {allArtworks.map((artwork: any, index) => (
+              <div key={index} className="artwork-item">
+                {artwork.thumbnail ? (
                   <img
                     src={constructImageUrl(artwork.thumbnail.url)}
-                    alt={artwork.source.title}
+                    alt={artwork.source?.title || "Unknown Source"}
                     style={{
                       maxWidth: "300px",
                       height: "300px",
                       margin: "10px",
                     }}
                   />
-                  <h5>{artwork.source.title}</h5>
-                  <p>Credit: {artwork.thumbnail.credit}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="chicago-artworks">
-              {allChicagoArtworks.map((artwork, index) => (
-                <div key={index} className="artwork-item">
-                  {artwork.image_id ? (
-                    <img
-                      src={`https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`}
-                      alt={artwork.title}
-                      style={{
-                        maxWidth: "300px",
-                        height: "300px",
-                        margin: "10px",
-                      }}
-                    />
-                  ) : (
-                    <p>No image available</p>
-                  )}
-                  <h5>{artwork.title}</h5>
-                  <p>Artist: {artwork.artist}</p>
-                </div>
-              ))}
-            </div>
+                ) : artwork.image_id ? (
+                  <img
+                    src={`https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`}
+                    alt={artwork.title}
+                    style={{
+                      maxWidth: "300px",
+                      height: "300px",
+                      margin: "10px",
+                    }}
+                  />
+                ) : (
+                  <p>No image available</p>
+                )}
+                <h5>{artwork.source?.title || artwork.title || "Untitled"}</h5>
+                <p>{artwork.thumbnail?.credit || artwork.artist || "Unknown"}</p>
+              </div>
+            ))}
           </div>
           <button
             className="load-more-button"
