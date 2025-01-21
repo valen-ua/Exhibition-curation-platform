@@ -23,6 +23,8 @@ export const MultiApiFetch = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [allArtworks, setAllArtworks] = useState<(WellcomeArtwork | ChicagoArtwork)[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [searchInput, setSearchInput] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     loadMoreArtworks();
@@ -70,12 +72,46 @@ export const MultiApiFetch = () => {
     return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
   };
 
+  const getFilteredArtworks = () => {
+    if (!searchQuery) return allArtworks 
+    return allArtworks.filter((artwork: any) => {
+      const title = artwork.source?.title || artwork.title || ""
+      const credit = artwork.thumbnail?.credit || artwork.artist || ""
+      return (
+        title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        credit.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    })
+  }
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  const resetSearch = () => {
+    setSearchInput("");
+    setSearchQuery("");
+  };
+
   return (
-    <div>
+    <div> 
       <div className="container">
+      
         <div className="artworks-wrapper">
+      <div className="search-bar" 
+    >
+    <input
+      type="text"
+      placeholder="Filter by title or author"
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)} 
+    />
+    <button className="search-button"
+     onClick={handleSearch}>
+     Search
+   </button>
+  </div>
           <div className="grid">
-            {allArtworks.map((artwork: any, index) => (
+            {getFilteredArtworks().map((artwork: any, index) => (
               <div key={index} className="artwork-item">
                 {artwork.thumbnail ? (
                   <img
