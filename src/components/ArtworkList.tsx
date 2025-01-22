@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchArtworks } from "../utils/wellcomeCollectionApi";
 import { fetchArtworksFromChicago } from "../utils/chicagoArtInstituteApi";
+import { useNavigate } from "react-router-dom";
 
 interface WellcomeArtwork {
   thumbnail: {
@@ -23,12 +24,20 @@ export const MultiApiFetch = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [allArtworks, setAllArtworks] = useState<(WellcomeArtwork | ChicagoArtwork)[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(""); 
-  const [searchQuery, setSearchQuery] = useState("")
+  
+
+  const handleSearch = () => {
+    if (searchInput.trim()) {
+      navigate(`/search-results?query=${encodeURIComponent(searchInput)}`);
+    }
+  };
 
   useEffect(() => {
     loadMoreArtworks();
   }, []);
+
 
   const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -72,46 +81,43 @@ export const MultiApiFetch = () => {
     return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
   };
 
-  const getFilteredArtworks = () => {
-    if (!searchQuery) return allArtworks 
-    return allArtworks.filter((artwork: any) => {
-      const title = artwork.source?.title || artwork.title || ""
-      const credit = artwork.thumbnail?.credit || artwork.artist || ""
-      return (
-        title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        credit.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    })
-  }
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-  };
-
-  const resetSearch = () => {
-    setSearchInput("");
-    setSearchQuery("");
-  };
-
   return (
     <div> 
+       
       <div className="container">
-      
         <div className="artworks-wrapper">
-      <div className="search-bar" 
-    >
-    <input
-      type="text"
-      placeholder="Filter by title or author"
-      value={searchInput}
-      onChange={(e) => setSearchInput(e.target.value)} 
-    />
-    <button className="search-button"
-     onClick={handleSearch}>
-     Search
-   </button>
-  </div>
+        <div style={{ textAlign: "center"}}>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search artworks..."
+          style={{
+            padding: "10px",
+            fontSize: "16px",
+            marginRight: "10px",
+            borderRadius: "5%",
+            border: "2px solid #fed6e9",
+          }}
+        />
+        <button
+          onClick={handleSearch}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#fed6e9",
+            border: "2px solid transparent",
+            borderRadius: "10%",
+            color: "#000",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          Search
+        </button>
+      </div>
           <div className="grid">
-            {getFilteredArtworks().map((artwork: any, index) => (
+            {allArtworks.map((artwork: any, index) => (
               <div key={index} className="artwork-item">
                 {artwork.thumbnail ? (
                   <img
