@@ -83,7 +83,6 @@ export const MultiApiFetch = () => {
 
   return (
     <div> 
-       
       <div className="container">
         <div className="artworks-wrapper">
         <div style={{ textAlign: "center"}}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { wellcomeSearchResults } from "../utils/wellcomeCollectionApi";
 import { chicagoSearchResults } from "../utils/chicagoArtInstituteApi";
+import { useLocation } from "react-router-dom";
 
 interface SearchWellcomeArtwork {
   thumbnail: {
@@ -26,7 +27,6 @@ export const SearchApiFetch = () => {
     (SearchWellcomeArtwork | SearchChicagoArtwork)[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchInput, setSearchInput] = useState(""); 
   const [searchQuery, setSearchQuery] = useState("");
 
   const shuffleArray = (array: any[]) => {
@@ -36,6 +36,15 @@ export const SearchApiFetch = () => {
     }
     return array;
   };
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search)
+    const query = queryParams.get("query")
+
+    if(query) {
+      setSearchQuery(query)
+    }
+  }, [location])
 
   useEffect(() => {
     if (!searchQuery) return;
@@ -85,27 +94,8 @@ export const SearchApiFetch = () => {
     return `https://www.artic.edu/iiif/2/${image_id}/full/843,/0/default.jpg`;
   };
 
-  const handleSearch = () => {
-    if (searchInput.trim() === "") return;
-    setSearchQuery(searchInput);
-  };
-
   return (
     <div>
-      <div style={{ textAlign: "center", margin: "20px" }}>
-        <input className="search-bar"
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search artworks..."
-        />
-        <button className="search-button"
-          onClick={handleSearch}
-        >
-          Search
-        </button>
-      </div>
-
       <div className="container">
         <div className="artworks-wrapper">
           {isLoading ? (
