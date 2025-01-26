@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchArtworks } from "../utils/wellcomeCollectionApi";
 import { fetchArtworksFromChicago } from "../utils/chicagoArtInstituteApi";
 import { useNavigate } from "react-router-dom";
+import ArtworkCard from "./ArtworkCard";
 
 interface WellcomeArtwork {
   thumbnail: {
@@ -15,6 +16,7 @@ interface WellcomeArtwork {
 }
 
 interface ChicagoArtwork {
+  id: number;
   image_id: string;
   title: string;
   artist: string;
@@ -63,6 +65,7 @@ export const MultiApiFetch = () => {
       ),
       fetchArtworksFromChicago(nextPage, 10).then((chicagoResults) =>
         chicagoResults.map((artwork: any) => ({
+          id: artwork.id,
           image_id: artwork.image_id,
           title: artwork.title || "Unknown Title",
           artist: artwork.artist_title || "Unknown Artist",
@@ -117,33 +120,17 @@ export const MultiApiFetch = () => {
       </div>
           <div className="grid">
             {allArtworks.map((artwork: any, index) => (
-              <div key={index} className="artwork-item">
-                {artwork.thumbnail ? (
-                  <img
-                    src={constructImageUrl(artwork.thumbnail.url)}
-                    alt={artwork.source?.title || "Unknown Source"}
-                    style={{
-                      maxWidth: "300px",
-                      height: "300px",
-                      margin: "10px",
-                    }}
-                  />
-                ) : artwork.image_id ? (
-                  <img
-                    src={`https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`}
-                    alt={artwork.title}
-                    style={{
-                      maxWidth: "300px",
-                      height: "300px",
-                      margin: "10px",
-                    }}
-                  />
-                ) : (
-                  <p>No image available</p>
-                )}
-                <h5>{artwork.source?.title || artwork.title || "Untitled"}</h5>
-                <p>{artwork.thumbnail?.credit || artwork.artist || "Unknown"}</p>
-              </div>
+              <ArtworkCard 
+              key={index}
+              id={artwork.id || artwork.image_id}
+              title={artwork.source?.title || artwork.title || "Untitled"}
+              imageUrl={
+                artwork.thumbnail
+                  ? constructImageUrl(artwork.thumbnail.url)
+                  : `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`
+              }
+              artist={artwork.thumbnail?.credit || artwork.artist}
+                       />
             ))}
           </div>
           <button
