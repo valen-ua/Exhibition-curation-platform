@@ -21,4 +21,12 @@ export const chicagoSearchResults = (query: string) => {
    
 }
 
+export const fetchChicagoIndividualArtwork = (artworkId: string) => {
+    console.log("artworkId passed to fetchChicagoIndividualArtwork:", artworkId);
+    return axios.get(`https://api.artic.edu/api/v1/artworks/${artworkId}`).then(({data}) => {
+        console.log(data)
+        return data
+    })
+}
+
 export default chicagoArtInstituteApi
