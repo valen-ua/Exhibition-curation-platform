@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { wellcomeSearchResults } from "../utils/wellcomeCollectionApi";
 import { chicagoSearchResults } from "../utils/chicagoArtInstituteApi";
 import { useLocation } from "react-router-dom";
+import ArtworkCard from "./ArtworkCard";
 
 interface SearchWellcomeArtwork {
   thumbnail: {
@@ -20,6 +21,7 @@ interface SearchChicagoArtwork {
   artist: string;
   imageUrl: string;
   api_link: string;
+  id: string;
 }
 
 export const SearchApiFetch = () => {
@@ -67,6 +69,7 @@ export const SearchApiFetch = () => {
                 image_id: artworkDetails.data.image_id || "No Image Available",
                 title: artwork.title || "Unknown Title",
                 artist: artworkDetails.data.artist_display || "Unknown Artist",
+                id: artwork.id
               }))
               .catch((error) => {
                 console.error(`Failed to fetch artwork details for ${artwork.title}:`, error);
@@ -82,6 +85,7 @@ export const SearchApiFetch = () => {
           ...chicagoResults,
         ]);
         setSearchResults(combinedResults);
+        console.log(combinedResults)
       })
       .catch((error) => console.error("Error fetching search results:", error))
       .finally(() => setIsLoading(false));
@@ -103,34 +107,22 @@ export const SearchApiFetch = () => {
           ) : searchResults.length > 0 ? (
             <div className="grid">
               {searchResults.map((artwork, index) => (
-                <div className="artwork-item"
-                  key={index}
-                >
-                  {"thumbnail" in artwork ? (
-                    <>
-                      <img
-                        src={constructWellcomeImageUrl(artwork.thumbnail.url)}
-                        alt={artwork.source?.title || "Unknown Source"}
-                      />
-                      <h5>{artwork.source?.title || "Untitled"}</h5>
-                      <p>{artwork.thumbnail.credit || "Unknown Artist"}</p>
-                    </>
-                  ) : (
-                    <>
-                      <img
-                        src={constructChicagoImageUrl(artwork.image_id)}
-                        alt={artwork.title || "Untitled"}
-                      />
-                      <h5>{artwork.title || "Untitled"}</h5>
-                      <p>{artwork.artist || "Unknown Artist"}</p>
-                    </>
-                  )}
-                </div>
+                 <ArtworkCard 
+                 key={index}
+      id={"thumbnail" in artwork ? artwork.id : artwork.id}
+      title={"thumbnail" in artwork ? artwork.source?.title : artwork.title}
+      imageUrl={
+        "thumbnail" in artwork
+          ? constructWellcomeImageUrl(artwork.thumbnail.url)
+          : constructChicagoImageUrl(artwork.image_id)
+      }
+      artist={"thumbnail" in artwork ? artwork.thumbnail.credit : artwork.artist}
+/>
               ))}
             </div>
           ) : (
             <p style={{ textAlign: "center" }}>
-              No results found. Try a different query.
+              No results found. Please try a different query.
             </p>
           )}
         </div>
