@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = "https://api.wellcomecollection.org/catalogue/v2/"
+const baseURL = "https://api.wellcomecollection.org/catalogue/v2"
 const wellcomeCollectionApi = axios.create({
     baseURL
 })
@@ -19,5 +19,13 @@ export const wellcomeSearchResults = (query: string) => {
         return data.results
     })
 }
+
+export const fetchWellcomeIndividualArtwork = (artworkId: string) => {
+    console.log("artworkId passed to fetchWellcomeIndividualArtwork:", artworkId);
+    return axios.get(`https://api.wellcomecollection.org/catalogue/v2/images/${artworkId}`).then(({data}) => {
+      console.log("API response:", data);
+      return data;
+    });
+  };
 
 export default wellcomeCollectionApi
