@@ -97,7 +97,7 @@ export const ArtworkDetail = () => {
           : individualArtwork.title}
       </h1>
 
-      {"artist" in individualArtwork && <p>Artist: {individualArtwork.artist}</p>}
+      {"artist" in individualArtwork && <p> {individualArtwork.artist}</p>}
       <div className="individual-image-container">
         {"thumbnail" in individualArtwork && (
         <img

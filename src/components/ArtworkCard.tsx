@@ -39,9 +39,10 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({ id, title, imageUrl, artist }
           borderRadius: "4px",
         }}
       />
-      <h4>{title || "Untitled"}</h4>
+      <div className="artwork-card-text">
+      <h5>{title || "Untitled"}</h5>
       <p>{artist || "Unknown Artist"}</p>
-      
+      </div>
     </div>
   );
 };
