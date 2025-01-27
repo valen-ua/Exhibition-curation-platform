@@ -3,11 +3,16 @@ import { fetchArtworks } from "../utils/wellcomeCollectionApi";
 import { fetchArtworksFromChicago } from "../utils/chicagoArtInstituteApi";
 import { useNavigate } from "react-router-dom";
 import ArtworkCard from "./ArtworkCard";
+import Filters from "./Filters";
+import { applyFiltersToArtworks } from "../utils/filterFunction";
 
 interface WellcomeArtwork {
   thumbnail: {
     url: string;
     credit: string;
+    license: {
+      id: string;
+    };
   };
   id: string;
   source: {
@@ -20,15 +25,22 @@ interface ChicagoArtwork {
   image_id: string;
   title: string;
   artist: string;
+  is_public_domain: boolean;
 }
 
 export const MultiApiFetch = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [allArtworks, setAllArtworks] = useState<(WellcomeArtwork | ChicagoArtwork)[]>([]);
+  const [allArtworks, setAllArtworks] = useState<
+    (WellcomeArtwork | ChicagoArtwork)[]
+  >([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
-  const [searchInput, setSearchInput] = useState(""); 
-  
+  const [searchInput, setSearchInput] = useState("");
+
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [publicDomainFilter, setPublicDomainFilter] = useState<boolean>(false);
+
+  const filteredArtworks = applyFiltersToArtworks(allArtworks, sourceFilter, publicDomainFilter);
 
   const handleSearch = () => {
     if (searchInput.trim()) {
@@ -39,7 +51,6 @@ export const MultiApiFetch = () => {
   useEffect(() => {
     loadMoreArtworks();
   }, []);
-
 
   const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -61,6 +72,7 @@ export const MultiApiFetch = () => {
           id: artwork.id,
           thumbnail: artwork.thumbnail,
           source: artwork.source,
+          license: artwork.thumbnail.license.id,
         }))
       ),
       fetchArtworksFromChicago(nextPage, 10).then((chicagoResults) =>
@@ -69,11 +81,16 @@ export const MultiApiFetch = () => {
           image_id: artwork.image_id,
           title: artwork.title || "Unknown Title",
           artist: artwork.artist_title || "Unknown Artist",
+          is_public_domain: artwork.is_public_domain,
         }))
       ),
     ])
-    .then(([wellcomeResults, chicagoResults]) => {
-        const combined = shuffleArray([...allArtworks, ...wellcomeResults, ...chicagoResults]);
+      .then(([wellcomeResults, chicagoResults]) => {
+        const combined = shuffleArray([
+          ...allArtworks,
+          ...wellcomeResults,
+          ...chicagoResults,
+        ]);
         setAllArtworks(combined);
         setCurrentPage(nextPage);
       })
@@ -84,54 +101,79 @@ export const MultiApiFetch = () => {
     return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
   };
 
+  // const applyFilters = () => {
+  //   setSourceFilter(tempSourceFilter);
+  //   setPublicDomainFilter(tempPublicDomainFilter);
+  // };
+
+  // // Reset filters
+  // const clearFilters = () => {
+  //   setTempSourceFilter("all");
+  //   setTempPublicDomainFilter(false);
+  //   setSourceFilter("all");
+  //   setPublicDomainFilter(false);
+  // };
+
+
   return (
-    <div> 
+    <div>
+      <Filters
+        sourceFilter={sourceFilter}
+        setSourceFilter={setSourceFilter}
+        publicDomainFilter={publicDomainFilter}
+        setPublicDomainFilter={setPublicDomainFilter}
+        
+      />
       <div className="container">
         <div className="artworks-wrapper">
-        <div style={{ textAlign: "center"}}>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search artworks..."
-          style={{
-            padding: "10px",
-            fontSize: "16px",
-            marginRight: "10px",
-            borderRadius: "5%",
-            border: "2px solid #fed6e9",
-          }}
-        />
-        <button
-          onClick={handleSearch}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#fed6e9",
-            border: "2px solid transparent",
-            borderRadius: "10%",
-            color: "#000",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          Search
-        </button>
-      </div>
+          <div style={{ textAlign: "center" }}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search artworks..."
+              style={{
+                padding: "10px",
+                fontSize: "16px",
+                marginRight: "10px",
+                borderRadius: "5%",
+                border: "2px solid #fed6e9",
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#fed6e9",
+                border: "2px solid transparent",
+                borderRadius: "10%",
+                color: "#000",
+                fontSize: "16px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Search
+            </button>
+          </div>
           <div className="grid">
-            {allArtworks.map((artwork: any, index) => (
-              <ArtworkCard 
-              key={index}
-              id={artwork.id || artwork.image_id}
-              title={artwork.source?.title || artwork.title || "Untitled"}
-              imageUrl={
-                artwork.thumbnail
-                  ? constructImageUrl(artwork.thumbnail.url)
-                  : `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`
-              }
-              artist={artwork.thumbnail?.credit || artwork.artist}
-                       />
-            ))}
+            {filteredArtworks.length > 0 ? (
+              filteredArtworks.map((artwork: any, index) => (
+                <ArtworkCard
+                  key={index}
+                  id={artwork.id || artwork.image_id}
+                  title={artwork.source?.title || artwork.title || "Untitled"}
+                  imageUrl={
+                    artwork.thumbnail
+                      ? constructImageUrl(artwork.thumbnail.url)
+                      : `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`
+                  }
+                  artist={artwork.thumbnail?.credit || artwork.artist}
+                />
+              ))
+            ) : (
+              <p>No artworks match the selected filters.</p>
+            )}
           </div>
           <button
             className="load-more-button"

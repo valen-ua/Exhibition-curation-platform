@@ -3,11 +3,16 @@ import { wellcomeSearchResults } from "../utils/wellcomeCollectionApi";
 import { chicagoSearchResults } from "../utils/chicagoArtInstituteApi";
 import { useLocation } from "react-router-dom";
 import ArtworkCard from "./ArtworkCard";
+import { applyFiltersToArtworks } from "../utils/filterFunction";
+import Filters from "./Filters";
 
 interface SearchWellcomeArtwork {
   thumbnail: {
     url: string;
     credit: string;
+    license: {
+      id: string;
+    };
   };
   id: string;
   source: {
@@ -22,6 +27,7 @@ interface SearchChicagoArtwork {
   imageUrl: string;
   api_link: string;
   id: string;
+  is_public_domain: boolean;
 }
 
 export const SearchApiFetch = () => {
@@ -30,6 +36,11 @@ export const SearchApiFetch = () => {
   >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [publicDomainFilter, setPublicDomainFilter] = useState<boolean>(false);
+
+  const filteredResults = applyFiltersToArtworks(searchResults, sourceFilter, publicDomainFilter);
 
   const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -58,6 +69,7 @@ export const SearchApiFetch = () => {
           id: artwork.id,
           thumbnail: artwork.thumbnail || { url: "", credit: "Unknown" },
           source: artwork.source || { title: "Untitled" },
+          license: artwork.thumbnail.license.id,
         }))
       ),
       chicagoSearchResults(searchQuery).then((results) =>
@@ -69,7 +81,8 @@ export const SearchApiFetch = () => {
                 image_id: artworkDetails.data.image_id || "No Image Available",
                 title: artwork.title || "Unknown Title",
                 artist: artworkDetails.data.artist_display || "Unknown Artist",
-                id: artwork.id
+                id: artwork.id,
+                is_public_domain: artwork.is_public_domain,
               }))
               .catch((error) => {
                 console.error(`Failed to fetch artwork details for ${artwork.title}:`, error);
@@ -100,13 +113,21 @@ export const SearchApiFetch = () => {
 
   return (
     <div>
+      <Filters
+        sourceFilter={sourceFilter}
+        setSourceFilter={setSourceFilter}
+        publicDomainFilter={publicDomainFilter}
+        setPublicDomainFilter={setPublicDomainFilter}
+       
+      />
+        <h4 className="search-results-header">Search results for <i>{searchQuery}</i></h4>
       <div className="container">
         <div className="artworks-wrapper">
           {isLoading ? (
             <p style={{ textAlign: "center" }}>Loading...</p>
-          ) : searchResults.length > 0 ? (
+          ) : filteredResults.length > 0 ? (
             <div className="grid">
-              {searchResults.map((artwork, index) => (
+              {filteredResults.map((artwork: any, index) => (
                  <ArtworkCard 
                  key={index}
       id={"thumbnail" in artwork ? artwork.id : artwork.id}
