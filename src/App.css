@@ -7,9 +7,77 @@
     align-items: center;
     min-height: 100vh;
   }
+
+ .loading-message {
+  text-align: center;
+ } 
+.no-results-message {
+  text-align: center;
+}
+  .nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 0;
+  }
+  
+  .nav .link {
+    color: black; 
+    text-decoration: none; 
+    margin: 0 15px; 
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .nav .link:hover {
+    color: #7607a2; 
+  }
+  
+  .nav .link.active {
+    color: #85087c; 
+    border-bottom: 2px solid #85087c; 
+  }
+
+.home-page-container {
+  margin-top: 10px;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  width: 60%; 
+  margin: 0 auto; 
+  text-align: center;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  }
+
+  .content-box {
+  background: #f8e6ef;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); 
+  width: 100%;
+  }
+
+ .home-page-list {
+  text-align: left;
+  width: 100%; 
+  padding-left: 0;
+  list-style: none;
+ }
+
+ .home-page-list li {
+    margin-bottom: 10px;
+  }
+  
   
   .artworks-wrapper {
     width: 50%;
+
+  }
+  .search-container {
+    text-align: center;
   }
   
   .grid {
@@ -36,15 +104,31 @@
 
   .header {
     justify-content: center;
-        background-color: #fde8f2;
-        border: 5px solid transparent; 
-        padding: 20px;
-        text-align: center; 
-        margin-bottom: 20px;
-        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
+    background-color: #fde8f2;
+    border: 5px solid transparent; 
+    padding: 20px;
+    text-align: center; 
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
 
   }
 
+.search-button {
+  padding: 10px 20px;
+  background-color: #fed6e9;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.search-input  {
+  padding: 10px;
+  font-size: 16px;
+  margin-right: 10px;
+  border-radius: 5px;
+  border: 2px solid #fed6e9;
+}
   .artwork-item {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
     justify-content: center;
@@ -55,6 +139,7 @@
     text-align: center; 
     padding: 10px; 
 }
+
 
 .load-more-button {
     display: block; 
@@ -75,7 +160,7 @@
     border-color: #f99dac;
   }
   
-  .load-more-button:active {
+.load-more-button:active {
     transform: scale(0.95);
   }
 .search-bar {
@@ -130,6 +215,34 @@
   height: 80vh;
 }
 
+/* ArtworkCard */
+.artwork-card {
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  margin: 10px;
+}
+
+.artwork-card-image {
+  max-width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.artwork-card-text h5 {
+  margin: 10px 0 5px 0;
+  font-size: 18px;
+}
+
+.artwork-card-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
 .artwork-image {
   max-width: 100%;
   max-height: 100%;
@@ -176,6 +289,24 @@
   font-size: 14px;
   margin-right: 4px;
   
+}
+
+.add-to-exhibition-button {
+  padding: "5px 10px";
+  background-color: "#fed6e9";
+  border: "none";
+  border-radius: "4px";
+  cursor: "pointer";
+  margin-left: "10px";
+}
+
+.select-exhibition-dropdown {
+  padding: "5px";
+  font-size: "16px";
+}
+
+.exhibition-box {
+  margin-top: "20px";
 }
 
 
