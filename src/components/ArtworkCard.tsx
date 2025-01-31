@@ -1,47 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import { UnifiedArtwork } from "./ArtworkList";
+
 interface ArtworkCardProps {
-  id: string;
-  title: string;
-  imageUrl: string;
-  artist: string;
-  
+  artwork: UnifiedArtwork;
 }
 
-const ArtworkCard: React.FC<ArtworkCardProps> = ({ id, title, imageUrl, artist }) => {
+const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/artwork/${id}`);
+    navigate(`/artwork/${artwork.id}`);
   };
 
   return (
-    <div
-      className="artwork-card"
-      onClick={handleClick}
-      style={{
-        cursor: "pointer",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "16px",
-        textAlign: "center",
-        margin: "10px",
-      }}
-    >
+    <div className="artwork-card" onClick={handleClick}>
       <img
-        src={imageUrl}
-        alt={title}
-        style={{
-          maxWidth: "100%",
-          height: "200px",
-          objectFit: "cover",
-          borderRadius: "4px",
-        }}
+        className="artwork-card-image"
+        src={artwork.imageUrl}
+        alt={artwork.title || "Artwork Image"}
       />
       <div className="artwork-card-text">
-      <h5>{title || "Untitled"}</h5>
-      <p>{artist || "Unknown Artist"}</p>
+        <h5>{artwork.title || "Untitled"}</h5>
+        <p>{artwork.artist || "Unknown Artist"}</p>
       </div>
     </div>
   );
