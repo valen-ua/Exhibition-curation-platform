@@ -25,8 +25,8 @@ const Filters: React.FC<FiltersProps> = ({
           className="source-dropdown"
         >
           <option value="all">All Sources</option>
-          <option value="wellcome">Wellcome Collection</option>
-          <option value="chicago">Chicago Art Institute</option>
+          <option value="Wellcome">Wellcome Collection</option>
+          <option value="Chicago">Chicago Art Institute</option>
         </select>
       </div>
       <div className="filter-checkbox">
@@ -37,10 +37,7 @@ const Filters: React.FC<FiltersProps> = ({
           onChange={(e) => setPublicDomainFilter(e.target.checked)}
         />
       </div>
-      {/* <div className="filter-buttons">
-        <button className="apply-button" onClick={applyFilters}>Apply Filters</button>
-        <button className="clear-button" onClick={clearFilters}>Clear Filters</button>
-      </div> */}
+      
     </div>
   );
 };
