@@ -1,38 +1,23 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { fetchWellcomeIndividualArtwork } from "../utils/wellcomeCollectionApi"
+import { fetchWellcomeIndividualArtwork } from "../utils/wellcomeCollectionApi";
 import { fetchChicagoIndividualArtwork } from "../utils/chicagoArtInstituteApi";
+import { UnifiedArtwork } from "./ArtworkList";
+import { useExhibition } from "./ExhibitionContext";
 
-
-interface WellcomeIndividualArtwork {
-  thumbnail: {
-    url: string;
-    credit: string;
-  };
-  id: string;
-  source: {
-    title: string;
-  };
-}
-
-interface ChicagoIndividualArtwork {
-  id: number;
-  title: string;
-  artist: string;
-  imageUrl: string;
-}
 const constructImageUrl = (infoUrl: string, size = "300, 300") => {
   return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
 };
 
 export const ArtworkDetail = () => {
   const { artworkId } = useParams<{ artworkId: string }>();
-  console.log("id in use params", artworkId)
-  const [individualArtwork, setIndividualArtwork] = useState<WellcomeIndividualArtwork | ChicagoIndividualArtwork | null>(null);
+  const { exhibitions, addToExhibition } = useExhibition();
+  const [individualArtwork, setIndividualArtwork] =
+    useState<UnifiedArtwork | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedExhibitionId, setSelectedExhibitionId] = useState<string>("");
 
-  
   useEffect(() => {
     if (!artworkId) {
       return;
@@ -47,21 +32,23 @@ export const ArtworkDetail = () => {
       fetchFunction(artworkId)
         .then((data) => {
           if (isWellcome) {
-            const wellcomeArtwork: WellcomeIndividualArtwork = {
+            const wellcomeArtwork: UnifiedArtwork = {
               id: data.id,
-              thumbnail:  {
-                url: constructImageUrl(data.thumbnail.url),
-                credit: data.thumbnail.credit
-              },
-              source: data.source,
+              title: data.source.title || "Untitled",
+              artist: data.thumbnail?.credit || "Unknown Artist",
+              imageUrl: constructImageUrl(data.thumbnail.url),
+              source: "Wellcome",
+              isPublicDomain: data.thumbnail.license.id === "cc0",
             };
             setIndividualArtwork(wellcomeArtwork);
           } else {
-            const chicagoArtwork: ChicagoIndividualArtwork = {
-              id: data.data.id,
+            const chicagoArtwork: UnifiedArtwork = {
+              id: data.data.id.toString(),
               title: data.data.title || "Unknown Title",
               artist: data.data.artist_title || "Unknown Artist",
               imageUrl: `https://www.artic.edu/iiif/2/${data.data.image_id}/full/843,/0/default.jpg`,
+              source: "Chicago",
+              isPublicDomain: data.data.is_public_domain,
             };
             setIndividualArtwork(chicagoArtwork);
           }
@@ -77,6 +64,15 @@ export const ArtworkDetail = () => {
     fetchIndividualArtwork();
   }, [artworkId]);
 
+  const handleAddToExhibition = () => {
+    if (selectedExhibitionId && individualArtwork) {
+      addToExhibition(individualArtwork, selectedExhibitionId);
+      alert("Artwork added to exhibition");
+    } else {
+      alert("Please select and exhibition");
+    }
+  };
+
   if (isLoading) {
     return <p>Loading artwork details...</p>;
   }
@@ -91,29 +87,37 @@ export const ArtworkDetail = () => {
 
   return (
     <div className="individual-artwork-container">
-      <h1>
-        {"source" in individualArtwork
-          ? individualArtwork.source.title
-          : individualArtwork.title}
-      </h1>
-
-      {"artist" in individualArtwork && <p> {individualArtwork.artist}</p>}
+      <h1>{individualArtwork.title}</h1>
+      {individualArtwork.artist && <p> {individualArtwork.artist}</p>}
       <div className="individual-image-container">
-        {"thumbnail" in individualArtwork && (
-        <img
-          src={individualArtwork.thumbnail.url}
-          alt={individualArtwork.source.title}
-          className="artwork-image"
-        />
-      )}
-      {"imageUrl" in individualArtwork && (
-        <img
-          src={individualArtwork.imageUrl}
-          alt={individualArtwork.title}
-          className="artwork-image"
-        />
-      )}
-    </div>
+        {
+          <img
+            src={individualArtwork.imageUrl}
+            alt={individualArtwork.title || "Artwork Image"}
+            className="artwork-image"
+          />
+        }
+      </div>
+      <div className="exhibition-box">
+        <select
+          className="select-exhibition-dropdown"
+          value={selectedExhibitionId}
+          onChange={(e) => setSelectedExhibitionId(e.target.value)}
+        >
+          <option value="">Select an Exhibition</option>
+          {exhibitions.map((exhibition) => (
+            <option key={exhibition.id} value={exhibition.id}>
+              {exhibition.name}
+            </option>
+          ))}
+        </select>
+        <button
+          className="add-to-exhibition-button"
+          onClick={handleAddToExhibition}
+        >
+          Add to Exhibition
+        </button>
+      </div>
     </div>
   );
 };
