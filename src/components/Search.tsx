@@ -1,46 +1,24 @@
 import { useState, useEffect } from "react";
 import { wellcomeSearchResults } from "../utils/wellcomeCollectionApi";
 import { chicagoSearchResults } from "../utils/chicagoArtInstituteApi";
-import { useLocation } from "react-router-dom";
+import { UnifiedArtwork } from "./ArtworkList";
 import ArtworkCard from "./ArtworkCard";
 import { applyFiltersToArtworks } from "../utils/filterFunction";
 import Filters from "./Filters";
 
-interface SearchWellcomeArtwork {
-  thumbnail: {
-    url: string;
-    credit: string;
-    license: {
-      id: string;
-    };
-  };
-  id: string;
-  source: {
-    title: string;
-  };
-}
-
-interface SearchChicagoArtwork {
-  image_id: string;
-  title: string;
-  artist: string;
-  imageUrl: string;
-  api_link: string;
-  id: string;
-  is_public_domain: boolean;
-}
-
 export const SearchApiFetch = () => {
-  const [searchResults, setSearchResults] = useState<
-    (SearchWellcomeArtwork | SearchChicagoArtwork)[]
-  >([]);
+  const [searchResults, setSearchResults] = useState<UnifiedArtwork[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [publicDomainFilter, setPublicDomainFilter] = useState<boolean>(false);
 
-  const filteredResults = applyFiltersToArtworks(searchResults, sourceFilter, publicDomainFilter);
+  const filteredResults = applyFiltersToArtworks(
+    searchResults,
+    sourceFilter,
+    publicDomainFilter
+  );
 
   const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -51,13 +29,13 @@ export const SearchApiFetch = () => {
   };
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search)
-    const query = queryParams.get("query")
+    const queryParams = new URLSearchParams(location.search);
+    const query = queryParams.get("query");
 
-    if(query) {
-      setSearchQuery(query)
+    if (query) {
+      setSearchQuery(query);
     }
-  }, [location])
+  }, [location]);
 
   useEffect(() => {
     if (!searchQuery) return;
@@ -65,29 +43,30 @@ export const SearchApiFetch = () => {
     setIsLoading(true);
     Promise.all([
       wellcomeSearchResults(searchQuery).then((results) =>
-        results.map((artwork: SearchWellcomeArtwork) => ({
+        results.map((artwork: any) => ({
           id: artwork.id,
-          thumbnail: artwork.thumbnail || { url: "", credit: "Unknown" },
-          source: artwork.source || { title: "Untitled" },
-          license: artwork.thumbnail.license.id,
+          title: artwork.source?.title || "Untitled",
+          artist: artwork.thumbnail?.credit || "Unknown Artist",
+          imageUrl: constructWellcomeImageUrl(artwork.thumbnail.url),
+          source: "Wellcome",
+          isPublicDomain: artwork.thumbnail.license.id === "cc0",
         }))
       ),
       chicagoSearchResults(searchQuery).then((results) =>
         Promise.all(
-          results.map((artwork: SearchChicagoArtwork) =>
+          results.map((artwork: any) =>
             fetch(artwork.api_link)
               .then((response) => response.json())
               .then((artworkDetails) => ({
-                image_id: artworkDetails.data.image_id || "No Image Available",
+                id: artwork.id.toString(),
                 title: artwork.title || "Unknown Title",
-                artist: artworkDetails.data.artist_display || "Unknown Artist",
-                id: artwork.id,
-                is_public_domain: artwork.is_public_domain,
+                artist: artworkDetails.data.artist_title || "Unknown Artist",
+                imageUrl: constructChicagoImageUrl(
+                  artworkDetails.data.image_id
+                ),
+                source: "Chicago",
+                isPublicDomain: artworkDetails.data.is_public_domain,
               }))
-              .catch((error) => {
-                console.error(`Failed to fetch artwork details for ${artwork.title}:`, error);
-                return null; 
-              })
           )
         )
       ),
@@ -98,7 +77,7 @@ export const SearchApiFetch = () => {
           ...chicagoResults,
         ]);
         setSearchResults(combinedResults);
-        console.log(combinedResults)
+        console.log(combinedResults);
       })
       .catch((error) => console.error("Error fetching search results:", error))
       .finally(() => setIsLoading(false));
@@ -118,31 +97,22 @@ export const SearchApiFetch = () => {
         setSourceFilter={setSourceFilter}
         publicDomainFilter={publicDomainFilter}
         setPublicDomainFilter={setPublicDomainFilter}
-       
       />
-        <h4 className="search-results-header">Search results for <i>{searchQuery}</i></h4>
+      <h4 className="search-results-header">
+        Search results for <i>{searchQuery}</i>
+      </h4>
       <div className="container">
         <div className="artworks-wrapper">
           {isLoading ? (
-            <p style={{ textAlign: "center" }}>Loading...</p>
+            <p className="loading-message">Loading...</p>
           ) : filteredResults.length > 0 ? (
             <div className="grid">
-              {filteredResults.map((artwork: any, index) => (
-                 <ArtworkCard 
-                 key={index}
-      id={"thumbnail" in artwork ? artwork.id : artwork.id}
-      title={"thumbnail" in artwork ? artwork.source?.title : artwork.title}
-      imageUrl={
-        "thumbnail" in artwork
-          ? constructWellcomeImageUrl(artwork.thumbnail.url)
-          : constructChicagoImageUrl(artwork.image_id)
-      }
-      artist={"thumbnail" in artwork ? artwork.thumbnail.credit : artwork.artist}
-/>
+              {filteredResults.map((artwork: UnifiedArtwork) => (
+                <ArtworkCard key={artwork.id} artwork={artwork} />
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: "center" }}>
+            <p className="no-results-message">
               No results found. Please try a different query.
             </p>
           )}
