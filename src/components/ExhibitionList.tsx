@@ -22,8 +22,11 @@ const ExhibitionList: React.FC = () => {
           value={newExhibitionName}
           onChange={(e) => setNewExhibitionName(e.target.value)}
           placeholder="Enter exhibition name"
+          className="exhibition-input"
         />
-        <button onClick={handleCreateExhibition}>Create New Exhibition</button>
+        <button onClick={handleCreateExhibition} className="create-button">
+          Create New Exhibition
+        </button>
       </div>
       {exhibitions.length === 0 ? (
         <p>No exhibitions created yet.</p>
@@ -31,8 +34,12 @@ const ExhibitionList: React.FC = () => {
         <ul>
           {exhibitions.map((exhibition) => (
             <li key={exhibition.id}>
-              <Link to={`/exhibitions/${exhibition.id}`}>
-                {exhibition.name}
+              <Link
+                to={`/exhibitions/${exhibition.id}`}
+                className="exhibition-link"
+                aria-label={`View details of exhibition: ${exhibition.name}`}
+              >
+                <h4>{exhibition.name}</h4>
               </Link>
             </li>
           ))}
