@@ -77,7 +77,6 @@ export const SearchApiFetch = () => {
           ...chicagoResults,
         ]);
         setSearchResults(combinedResults);
-        console.log(combinedResults);
       })
       .catch((error) => console.error("Error fetching search results:", error))
       .finally(() => setIsLoading(false));

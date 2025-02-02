@@ -37,12 +37,13 @@ const Filters: React.FC<FiltersProps> = ({
           </p>
         </div>
         <div className="filter-checkbox">
-          <label>Public Domain Only:</label>
+          <label id="public-domain-label" htmlFor="public-domain-filter">Public Domain Only:</label>
           <input
             type="checkbox"
             id="public-domain-filter"
             checked={publicDomainFilter}
             onChange={(e) => setPublicDomainFilter(e.target.checked)}
+            aria-labelledby="public-domain-label"
           />
         </div>
       </div>
