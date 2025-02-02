@@ -11,7 +11,11 @@ const constructImageUrl = (infoUrl: string, size = "300, 300") => {
 
 export const ArtworkDetail = () => {
   const { artworkId } = useParams<{ artworkId: string }>();
-  const { exhibitions, addToExhibition } = useExhibition();
+  const {
+    exhibitions = [],
+    addToExhibition,
+    removeFromExhibition,
+  } = useExhibition();
   const [individualArtwork, setIndividualArtwork] =
     useState<UnifiedArtwork | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,17 +68,38 @@ export const ArtworkDetail = () => {
     fetchIndividualArtwork();
   }, [artworkId]);
 
+  const isInExhibition = !!(
+    individualArtwork &&
+    Array.isArray(exhibitions) &&
+    exhibitions.some(
+      (exhibition) =>
+        Array.isArray(exhibition?.artworks) &&
+        exhibition.artworks.some(
+          (artwork) => artwork?.id === individualArtwork.id
+        )
+    )
+  );
+
   const handleAddToExhibition = () => {
     if (selectedExhibitionId && individualArtwork) {
       addToExhibition(individualArtwork, selectedExhibitionId);
       alert("Artwork added to exhibition");
     } else {
-      alert("Please select and exhibition");
+      alert(
+        "Please select an exhibition or go to Exhibitions page to create one"
+      );
+    }
+  };
+
+  const handleRemoveFromExhibition = (exhibitionId: string) => {
+    if (individualArtwork) {
+      removeFromExhibition(individualArtwork.id, exhibitionId);
+      alert("Artwork removed from exhibition");
     }
   };
 
   if (isLoading) {
-    return <p>Loading artwork details...</p>;
+    return <p className="loading-message">Loading artwork details...</p>;
   }
 
   if (error) {
@@ -82,7 +107,7 @@ export const ArtworkDetail = () => {
   }
 
   if (!individualArtwork) {
-    return <p>No artwork details available.</p>;
+    return <p className="no-results-message">No artwork details available.</p>;
   }
 
   return (
@@ -99,24 +124,53 @@ export const ArtworkDetail = () => {
         }
       </div>
       <div className="exhibition-box">
-        <select
-          className="select-exhibition-dropdown"
-          value={selectedExhibitionId}
-          onChange={(e) => setSelectedExhibitionId(e.target.value)}
-        >
-          <option value="">Select an Exhibition</option>
-          {exhibitions.map((exhibition) => (
-            <option key={exhibition.id} value={exhibition.id}>
-              {exhibition.name}
-            </option>
-          ))}
-        </select>
-        <button
-          className="add-to-exhibition-button"
-          onClick={handleAddToExhibition}
-        >
-          Add to Exhibition
-        </button>
+        {!isInExhibition && (
+          <>
+            <select
+              className="select-exhibition-dropdown"
+              value={selectedExhibitionId}
+              onChange={(e) => setSelectedExhibitionId(e.target.value)}
+            >
+              <option value="">Select an Exhibition</option>
+              {exhibitions.map((exhibition) => (
+                <option key={exhibition.id} value={exhibition.id}>
+                  {exhibition.name}
+                </option>
+              ))}
+            </select>
+            <button
+              className="add-to-exhibition-button"
+              onClick={handleAddToExhibition}
+            >
+              Add to Exhibition
+            </button>
+          </>
+        )}
+
+        {isInExhibition && (
+          <div>
+            <p>This artwork is part of the following exhibition:</p>
+            {exhibitions
+              .filter(
+                (exhibition) =>
+                  Array.isArray(exhibition?.artworks) &&
+                  exhibition.artworks.some(
+                    (artwork) => artwork?.id === individualArtwork?.id
+                  )
+              )
+              .map((exhibition) => (
+                <div key={exhibition.id} className="exhibition-item">
+                  <span>{exhibition.name}</span>
+                  <button
+                    className="remove-from-exhibition-button"
+                    onClick={() => handleRemoveFromExhibition(exhibition.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );
