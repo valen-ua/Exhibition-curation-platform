@@ -17,11 +17,13 @@ export interface UnifiedArtwork {
 
 export const MultiApiFetch = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [allArtworks, setAllArtworks] = useState<UnifiedArtwork[]>([]);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
 
+  const [filtersUsed, setFiltersUsed] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [publicDomainFilter, setPublicDomainFilter] = useState<boolean>(false);
 
@@ -38,25 +40,16 @@ export const MultiApiFetch = () => {
   };
 
   useEffect(() => {
-    loadMoreArtworks();
-  }, []);
+    fetchArtworksByPage(currentPage);
+  }, [currentPage]);
 
-  const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
+  const fetchArtworksByPage = (page: number) => {
+    if (isLoading) return;
 
-  const loadMoreArtworks = () => {
-    if (isLoadingMore) return;
-
-    setIsLoadingMore(true);
-    const nextPage = currentPage + 1;
+    setIsLoading(true);
 
     Promise.all([
-      fetchArtworks(nextPage, 10).then((wellcomeResults) =>
+      fetchArtworks(page, 10).then((wellcomeResults) =>
         wellcomeResults.map((artwork: any) => ({
           id: artwork.id,
           title: artwork.source?.title || "Untitled",
@@ -66,7 +59,7 @@ export const MultiApiFetch = () => {
           isPublicDomain: artwork.thumbnail.license.id === "cc0",
         }))
       ),
-      fetchArtworksFromChicago(nextPage, 10).then((chicagoResults) =>
+      fetchArtworksFromChicago(page, 10).then((chicagoResults) =>
         chicagoResults.map((artwork: any) => ({
           id: artwork.id.toString(),
           title: artwork.title || "Unknown Title",
@@ -78,59 +71,113 @@ export const MultiApiFetch = () => {
       ),
     ])
       .then(([wellcomeResults, chicagoResults]) => {
-        const combined = shuffleArray([
-          ...allArtworks,
-          ...wellcomeResults,
-          ...chicagoResults,
-        ]);
+        const combined = shuffleArray([...wellcomeResults, ...chicagoResults]);
         setAllArtworks(combined);
-        setCurrentPage(nextPage);
+        setTotalPages(200);
       })
-      .catch((error) => console.error("Error fetching artworks:", error))
-      .finally(() => setIsLoadingMore(false));
+      .catch((error) => {
+        console.error("Error fetching artworks:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
+
+  const shuffleArray = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
   const constructImageUrl = (infoUrl: string, size = "300, 300") => {
     return infoUrl.replace("/info.json", `/full/${size}/0/default.jpg`);
   };
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
   return (
-    <div>
+    <div role="region" aria-labelledby="filters-heading">
+      <h2 id="filters-heading" className="visually-hidden">
+        Artwork Filters
+      </h2>
       <Filters
         sourceFilter={sourceFilter}
-        setSourceFilter={setSourceFilter}
+        setSourceFilter={(value) => {
+          setSourceFilter(value);
+          setFiltersUsed(true);
+        }}
         publicDomainFilter={publicDomainFilter}
-        setPublicDomainFilter={setPublicDomainFilter}
+        setPublicDomainFilter={(value) => {
+          setPublicDomainFilter(value);
+          setFiltersUsed(true);
+        }}
       />
       <div className="container">
         <div className="artworks-wrapper">
           <div className="search-container">
+            <label htmlFor="search-input" className="visually-hidden">
+              Search for artworks
+            </label>
             <input
+              id="search-input"
               className="search-input"
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search artworks..."
             />
-            <button onClick={handleSearch} className="search-button">
+            <button
+              onClick={handleSearch}
+              className="search-button"
+              aria-label="Search artworks"
+            >
               Search
             </button>
           </div>
-          <div className="grid">
+          <div className="grid" role="list">
             {filteredArtworks.length > 0 ? (
               filteredArtworks.map((artwork: UnifiedArtwork) => (
-                <ArtworkCard key={artwork.id} artwork={artwork} />
+                <div role="listitem" key={artwork.id}>
+                  <ArtworkCard key={artwork.id} artwork={artwork} />
+                </div>
               ))
-            ) : (
-              <p>No artworks match the selected filters.</p>
-            )}
+            ) : filtersUsed ? (
+              <p className="no-results-message" role="alert">
+                No artworks match the selected filters.
+              </p>
+            ) : null}
           </div>
-          <button
-            className="load-more-button"
-            onClick={loadMoreArtworks}
-            disabled={isLoadingMore}
-          >
-            {isLoadingMore ? "Loading..." : "Load More"}
-          </button>
+          <div className="pagination">
+            <button
+              className="pagination-button"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1 || isLoading}
+            >
+              Previous
+            </button>
+            <span className="page-number">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className="pagination-button"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages || isLoading}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
