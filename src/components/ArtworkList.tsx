@@ -41,6 +41,7 @@ export const MultiApiFetch = () => {
 
   useEffect(() => {
     fetchArtworksByPage(currentPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
   const fetchArtworksByPage = (page: number) => {
@@ -74,6 +75,8 @@ export const MultiApiFetch = () => {
         const combined = shuffleArray([...wellcomeResults, ...chicagoResults]);
         setAllArtworks(combined);
         setTotalPages(200);
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
       })
       .catch((error) => {
         console.error("Error fetching artworks:", error);
@@ -98,12 +101,14 @@ export const MultiApiFetch = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" })
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" })
     }
   };
 
