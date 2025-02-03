@@ -594,3 +594,11 @@
   font-weight: bold;
   color: #000;
 }
+
+/* Footer */
+.footer-text {
+  margin-left: 5px;
+  margin-bottom: 5px;
+  text-align: center;
+  padding: 10px;
+}
