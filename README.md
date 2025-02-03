@@ -1,50 +1,36 @@
-# React + TypeScript + Vite
+# Exhibition curation platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Overview
+It is a React-based web application that allows users to create virtual exhibitions by selecting and organizing artworks from museum APIs. The platform fetches artwork data from the Wellcome Collection API and The Chicago Art Institute API, enabling users to curate their own temporary collections.
 
-Currently, two official plugins are available:
+This application has been hosted at: https://capable-starburst-cd3814.netlify.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Features
+1. Browse artworks - users can view a selection of artworks retrieved from external museum APIs using pages.
+2. View individual artworks - users can view high resolution of a chosen artwork.
+3. Search functionality - users can search for specific artworks and display results on a separate page.
+4. Filters - users can filter artworks by source and public domain status.
+5. Exhibition management - users can create, name, and view virtual exhibitions.
+6. Artwork management - users can add/remove artworks to/from the exhibitions they had created.
 
-## Expanding the ESLint configuration
+Technologies used:
+React
+React Router
+Typescript
+Context
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+If you would like to run the project locally please see instructions below:
+1) Clone the repository: git clone https://github.com/valen-ua/Exhibition-curation-platform.git
+2) Navigate to your project directory: cd *project directory*
+3) Install dependancies: npm install
+4) Start the development server: npm run dev
+5) Open the application in your browser by following the localhost link on the screen
 
-- Configure the top-level `parserOptions` property like this:
+   Contact:
+   For questions or suggestions please feel free to reach out:
+   Email: valentynaborysenko11@gmail.com
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+
