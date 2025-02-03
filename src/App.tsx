@@ -9,6 +9,7 @@ import ExhibitionList from "./components/ExhibitionList";
 import ExhibitionDetail from "./components/ExhibitionDetails";
 import { NavigationBar } from "./components/NavBar";
 import { Home } from "./components/Home";
+import { Footer } from "./components/Footer";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               />
             </Routes>
           </Router>
+          <Footer />
         </ExhibitionProvider>
       </div>
     </>
