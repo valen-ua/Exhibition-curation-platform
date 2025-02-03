@@ -5,18 +5,18 @@ export const Home = () => {
       <h2 className="home-header">Welcome to your Exhibition Curator</h2>
       <p>
         Discover and curate art like never before! Our platform allows you to
-        explore artworks from the <b>Wellcome Collection</b> and <b>The Art Institute of
-        Chicago</b>, using open-access APIs to bring you a diverse range of
+        explore artworks from the <b><a href="https://wellcomecollection.org/">Wellcome Collection</a></b>  and <b><a href="https://www.artic.edu/">The Art Institute of
+        Chicago</a></b>, using open-access APIs to bring you a diverse range of
         historical and contemporary pieces.
       </p>
       <h4>Key features</h4>
       <ul className="home-page-list">
         <li>
-        ✅<b>Easy Browsing</b> - Browse artworks using the "Load More" button bottom of
+        ✅<b>Easy Browsing</b> - Browse artworks using the page navigation buttons bottom of
           the page
         </li>
         <li>
-        ✅<b>Search Across Collections</b> - Find artworks searching by name or author
+        ✅<b>Search Across Collections</b> - Find artworks searching by name/author or subject 
         </li>
         <li>
         ✅<b>Filter artworks</b> - Quickly refine your search by source or choose to
